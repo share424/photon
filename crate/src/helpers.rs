@@ -1,7 +1,7 @@
 //! Helper functions for converting between various formats
 
 use crate::{PhotonImage, Rgb};
-use image::DynamicImage::ImageRgba8;
+use image::DynamicImage::{ImageRgba8, ImageLuma8};
 use image::{DynamicImage, ImageBuffer};
 
 #[cfg(feature = "enable_wasm")]
@@ -50,3 +50,18 @@ pub fn dyn_image_from_raw(photon_image: &PhotonImage) -> DynamicImage {
     .unwrap();
     ImageRgba8(img_buffer)
 }
+
+/// Convert a PhotonImage to a ImageLuma8 DynamicImage type (struct used by the `image` crate)
+pub fn dyn_luma8_image_from_raw(photon_image: &PhotonImage) -> DynamicImage {
+    // convert a vec of raw pixels (as u8s) to a DynamicImage type
+    let _len_vec = photon_image.raw_pixels.len() as u128;
+    let raw_pixels = &photon_image.raw_pixels;
+    let img_buffer = ImageBuffer::from_vec(
+        photon_image.width,
+        photon_image.height,
+        raw_pixels.to_vec(),
+    )
+    .unwrap();
+    ImageLuma8(img_buffer)
+}
+

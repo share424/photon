@@ -2,7 +2,7 @@
 
 use crate::helpers;
 use crate::PhotonImage;
-use image::DynamicImage::ImageRgba8;
+use image::DynamicImage::{ImageRgba8, ImageLuma8};
 use std::cmp::min;
 
 #[cfg(feature = "enable_wasm")]
@@ -16,6 +16,16 @@ fn conv(photon_image: &mut PhotonImage, kernel: Kernel) {
 
     let mut filtered_img = img.filter3x3(&kernel);
     filtered_img = ImageRgba8(filtered_img.to_rgba8());
+
+    photon_image.raw_pixels = filtered_img.to_bytes();
+}
+
+fn conv_1channel(photon_image: &mut PhotonImage, kernel: Kernel) {
+    let mut img = helpers::dyn_luma8_image_from_raw(photon_image);
+    img = ImageLuma8(img.to_luma8());
+
+    let mut filtered_img = img.filter3x3(&kernel);
+    filtered_img = ImageLuma8(filtered_img.to_luma8());
 
     photon_image.raw_pixels = filtered_img.to_bytes();
 }
@@ -481,6 +491,14 @@ pub fn detect_135_deg_lines(photon_image: &mut PhotonImage) {
 #[cfg_attr(feature = "enable_wasm", wasm_bindgen)]
 pub fn laplace(photon_image: &mut PhotonImage) {
     conv(
+        photon_image,
+        [0.0_f32, -1.0, 0.0, -1.0, 4.0, -1.0, 0.0, -1.0, 0.0],
+    );
+}
+
+#[cfg_attr(feature = "enable_wasm", wasm_bindgen)]
+pub fn laplace_1channel(photon_image: &mut PhotonImage) {
+    conv_1channel(
         photon_image,
         [0.0_f32, -1.0, 0.0, -1.0, 4.0, -1.0, 0.0, -1.0, 0.0],
     );

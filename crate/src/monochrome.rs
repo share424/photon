@@ -173,6 +173,30 @@ pub fn grayscale_human_corrected(img: &mut PhotonImage) {
     }
 }
 
+/// Convert an image to grayscale with a human corrected factor, to account for human vision. And return 1 channel image
+#[cfg_attr(feature = "enable_wasm", wasm_bindgen)]
+pub fn grayscale_human_corrected_1channel(img: PhotonImage) -> PhotonImage {
+    let end = img.get_raw_pixels().len();
+    let mut pixels = vec![0; end / 4];
+
+    for i in (0..end).step_by(4) {
+        let r_val = img.raw_pixels[i] as f32;
+        let g_val = img.raw_pixels[i + 1] as f32;
+        let b_val = img.raw_pixels[i + 2] as f32;
+
+        let avg: u8 = (r_val * 0.3 + g_val * 0.59 + b_val * 0.11) as u8;
+
+        pixels[i / 4] = avg;
+    }
+
+    PhotonImage {
+        raw_pixels: pixels,
+        width: img.width,
+        height: img.height,
+    }
+}
+
+
 /// Desaturate an image by getting the min/max of each pixel's RGB values.
 ///
 /// # Arguments

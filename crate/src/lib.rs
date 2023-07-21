@@ -447,12 +447,22 @@ pub fn open_image(
     canvas: HtmlCanvasElement,
     ctx: CanvasRenderingContext2d,
 ) -> PhotonImage {
-    let imgdata = get_image_data(&canvas, &ctx);
+    let imgdata: ImageData = get_image_data(&canvas, &ctx);
     let raw_pixels = to_raw_pixels(imgdata);
     PhotonImage {
         raw_pixels,
         width: canvas.width(),
         height: canvas.height(),
+    }
+}
+
+#[cfg_attr(feature = "enable_wasm", wasm_bindgen)]
+pub fn open_from_image_data(imgdata: ImageData, width: u32, height: u32) -> PhotonImage {
+    let raw_pixels = to_raw_pixels(imgdata);
+    PhotonImage {
+        raw_pixels,
+        width: width,
+        height: height,
     }
 }
 
@@ -520,3 +530,5 @@ pub mod noise;
 mod tests;
 pub mod text;
 pub mod transform;
+pub mod quality;
+pub mod detector;
